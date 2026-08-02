@@ -1,2 +1,0 @@
-selenium>=4.28.0
-websocket-client>=1.8.0
