@@ -1,0 +1,6 @@
+interface:
+  display_name: "Zotero 文献整理可视化"
+  short_description: "整理 Zotero/PDF 文献，生成双语总结和可视化 dashboard。"
+  default_prompt: "Use $zotero-literature-visualizer to review my topic or direct-read my Zotero PDFs, classify the papers, produce a bilingual review, and build an interactive visualization dashboard."
+policy:
+  allow_implicit_invocation: true
