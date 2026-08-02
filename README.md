@@ -1,383 +1,203 @@
 # Zotero 文献整理与可视化 Skill
 
-这个包给 Codex 增加一套完整的文献整理流程：从一个研究主题出发，检索近年高质量论文，下载或整理 PDF，把新文献加入 Zotero，并生成可交互的中英文可视化 dashboard。
+## 中文说明
 
-它主要包含两个 skill：
+`zotero-literature-visualizer` 是面向 Codex 的学术文献工作流 skill。它可从研究主题或已有 Zotero 文献库出发，完成文献检索、期刊质量核查、合规的全文获取流程、Zotero 条目整理、中英文研究摘要，以及交互式文献 dashboard 的生成。
 
-- `zotero-literature-visualizer`：负责文献检索、筛选、分类、总结、Zotero 直读、Zotero 导入和 dashboard 生成。
-- `sciencedirect-live-session-fetcher`：负责在你已经合法登录学校/图书馆/出版社账号后，通过真实浏览器会话下载 ScienceDirect/Elsevier 等页面提供的 PDF。
+Dashboard 会包含主题分类、方法热点、主题—方法关系图、发表时间线、期刊来源、文章卡片与本地 PDF 打开入口。时间线按年份排列，以主题颜色区分文献；文章卡片可显示中文研究摘要，并将英文证据折叠为可选参考。
 
-默认目标是：近 1 年、质量优先、顶刊优先、默认 top 30。如果某个方向的高质量强相关论文明显超过 30 篇，也可以让 Codex 不限制数量，全部整理。
+### 安装
 
-## 一句话说明
+1. 下载或获得此 skill 的 `.skill` 或 `.zip` 文件。
+2. 将文件拖入 Codex，或在对话中附上文件并说：
 
-你给 Codex 一个领域或关键词，它可以帮你完成：
+   ```text
+   请安装这个 zotero-literature-visualizer skill。
+   ```
 
-1. 找论文：检索 OpenAlex、Crossref、Unpaywall、出版社页面等来源。
-2. 筛论文：默认优先选择近 1 年、强相关、高影响力期刊论文。
-3. 验期刊：需要时会从期刊或出版社官网核对影响因子，默认排除 IF 低于 5 的期刊。
-4. 下全文：OA 文章可直接处理；非 OA 文章需要你在浏览器里用学校/图书馆账号合法登录。
-5. 入 Zotero：可把下载好的 PDF 自动加入 Zotero 条目，并以本地 linked-file 方式挂载 PDF，不占 Zotero 云端容量。
-6. 做 dashboard：自动生成主题分类、方法热度、主题-方法关系图、期刊来源、文章卡片、双语详情总结和本地 PDF/DOI 链接。
+3. 安装后重启 Codex，或刷新插件/skills 列表。
+4. 在新对话中用下面的提示词开始工作。
 
-## 安装方法
+### 使用方式 1：直接整理已有 Zotero 文献库
 
-最简单的安装方式：把这个 GitHub 仓库链接或 zip 链接直接发给 Codex，让 Codex 安装。
-
-可以这样说：
+适用于 Zotero 中已经有论文条目和本地 PDF 的情况。
 
 ```text
-请帮我安装这个文献自动下载、Zotero 导入和可视化综述 skill：
-<这里粘贴 GitHub 链接或 zip 链接>
+使用 zotero-literature-visualizer skill，读取我 Zotero 中所有带本地 PDF 的文献，
+按主题和方法分类，生成中英文摘要与交互式 dashboard。
 ```
 
-安装完成后，重启 Codex。
-
-重启后可以直接问：
+也可以限制到一个 collection：
 
 ```text
-这个文献综述和可视化 skill 安装好了吗？帮我检查一下。
+使用 zotero-literature-visualizer skill，只整理 Zotero 中“某个文件夹”内带本地 PDF 的文献，
+生成交互式 dashboard。
 ```
 
-Codex 会检查 skill 是否能被识别、脚本是否能运行、基础 dashboard 是否能生成。
+Zotero 直读模式会以只读方式读取本地数据库，不移动 PDF，也不会修改原有条目。只有已解析到本地的 PDF 会被纳入全文可视化；没有本地 PDF 的条目会被明确标记为未纳入全文分析。
 
-## 使用方式一：整理一个新研究方向
-
-直接告诉 Codex 你的研究方向或关键词。
-
-示例：
+### 使用方式 2：检索一个新研究方向
 
 ```text
-使用 zotero-literature-visualizer skill，帮我整理“……”方向近 1 年的高质量顶刊论文，默认 top 30，生成中英文总结和可视化 dashboard。
+使用 zotero-literature-visualizer skill，整理“关键词***”相关的近年高质量论文。
+请给出筛选逻辑、期刊质量核查、双语研究摘要和可视化 dashboard。
 ```
 
-把 `……` 换成你的研究方向，例如：
+可补充限定条件，例如时间范围、目标数量、主题词、地区或方法：
 
 ```text
-建筑，低碳，机器学习，能源优化
+近 5 年；不限制篇数；重点关注关键词***、研究对象***与研究方法***。
 ```
 
-或者：
+默认流程优先关注相关性、研究质量与期刊证据，不会因为论文是否开放获取而改变纳入排序。
+
+### 使用方式 3：获取全文 PDF
+
+对于受订阅限制的论文，Codex 不会绕过付费墙或索取账号密码。请先在出版社、学校或图书馆网页中自行完成登录，然后说：
 
 ```text
-极地建筑，低碳建筑材料，建筑能耗，AI 方法
+我已在浏览器中合法登录，请继续下载这些论文的全文。
 ```
 
-如果你不想限制 30 篇，可以说：
+下载流程会从可见的出版社文章页开始，并使用页面上的 `View PDF`、`Open PDF` 或 `Download PDF` 等入口。遇到验证码、双重验证或下载确认时，由用户自行完成。
+
+### 使用方式 4：把论文及 PDF 添加到 Zotero
+
+如果希望把新文献写回 Zotero，可以说：
 
 ```text
-如果这个方向强相关的高质量论文超过 30 篇，就不要限制数量，全部整理。
+将已下载的论文加入 Zotero 的“某个文件夹”，并把本地 PDF 作为对应条目的附件。
 ```
 
-Codex 通常会先做一个小样本测试，确认关键词、期刊质量和下载流程能跑通，再扩展到完整结果。
+需要通过 Zotero Web API 写入时，请自行在 Zotero 创建仅限个人文库的 API key，并授予需要的 library/write 权限。不要把 API key 放入 README、代码仓库或公开聊天记录。
 
-## 使用方式二：下载非 OA 全文
-
-如果论文不是开放获取，Codex 不能绕过付费墙，也不会要你的账号密码。你需要自己完成合法登录。
-
-你需要做的事：
-
-1. 让 Codex 列出需要下载全文的论文。
-2. Codex 会打开或指导你打开一个专用浏览器窗口。
-3. 你在浏览器里登录学校、图书馆或出版社账号。
-4. 如果网页出现验证码、学校认证、双重验证，你自己完成。
-5. 你打开一篇代表性文章，点一次页面上的 `View PDF` 或 `Download PDF`。
-6. 登录和 PDF 访问确认成功后，告诉 Codex：“我登录好了，继续下载。”
-
-Codex 会尽量按合规顺序处理：先打开官方文章页，再使用页面可见的 PDF 入口，不把短期签名链接当作长期下载地址。
-
-常用提示词：
+### 使用方式 5：生成或改进 dashboard
 
 ```text
-我已经在浏览器里登录学校账号了，请继续下载这些文献。下载时先打开文章页，再点击页面上的 PDF 入口。
+为这个文献库生成 dashboard，并加入：主题分类、方法分布、发表时间线、主题—方法关系图、期刊来源与本地 PDF 链接。
 ```
 
-## 使用方式三：把新下载的 PDF 放进 Zotero 和 dashboard
-
-如果你已经让 Codex 下载了一批 PDF，可以继续说：
+如需针对某个文献库做更深入的解释，可继续要求：
 
 ```text
-把刚下载好的 PDF 放进 Zotero，新建一个今天日期的 collection，并更新 dashboard。
+请根据 PDF 全文，逐篇补充中文的研究主题、方法、数据或案例、主要结果、局限与研究启示。
 ```
 
-默认方式是 `linked-file`：
+### 典型输出
 
-- PDF 文件仍然留在你的电脑本地。
-- Zotero 条目下面会出现这个 PDF 附件。
-- 不上传 PDF 到 Zotero 云端。
-- 不占 Zotero 云端存储空间。
+运行目录通常包含：
 
-第一次使用 Zotero 自动导入时，需要设置 Zotero API key。
+- `metadata/papers.json`：规范化的论文元数据；
+- `texts/`：从本地 PDF 提取的文本；
+- `review-bilingual.md`：双语综述；
+- `relationship-map.md`：主题与方法关系说明；
+- `dashboard-spec.json`：可人工调整的分类与卡片语义；
+- `literature-dashboard.html`：离线打开的交互式 dashboard。
 
-你需要做的事：
+### 隐私与数据边界
 
-1. 登录 Zotero 官网。
-2. 创建一个 API key。
-3. 勾选个人文库的 `Allow library access` 和 `Allow write access`。
-4. 不需要 group 权限，除非你想导入 group library。
-5. 不需要把 key 发到公开聊天或 GitHub，放在本地文件里给 Codex 读取即可。
-
-这个 API key 本身不收费。只有你选择把 PDF 上传到 Zotero 云端时，才可能受 Zotero 云端存储容量限制。本 skill 默认使用本地 linked-file，不上传 PDF。
-
-## 使用方式四：直接读取已有 Zotero 文献库
-
-如果你 Zotero 里已经有很多文献和 PDF，不需要重新搜索或下载，可以让 Codex 直接读取 Zotero 本地库。
-
-提示词：
-
-```text
-使用 zotero-literature-visualizer skill 的 Zotero 模式，直接读取我 Zotero 里所有带本地 PDF 的文献，分类总结，并生成中英文可视化 dashboard。
-```
-
-Zotero 直读模式会：
-
-- 自动寻找本机 Zotero 数据库。
-- 只读方式读取，不修改 Zotero 数据库。
-- 只纳入有本地 PDF 的条目。
-- 没有 PDF 的条目直接跳过。
-- 默认全量读取，不限制 30 篇或 100 篇。
-- 文献超过 100 篇时自动启用大文献库 dashboard。
-
-大文献库 dashboard 会包含：
-
-- `Overview / 总览`：论文数量、主题分布、方法分布、主要期刊。
-- `Explore / 浏览`：按主题、方法或期刊浏览文献。
-- `Map / 关系图`：主题和方法之间的聚合关系。
-- 文章详情层：点击文章后查看主题、方法、摘要、贡献、局限和相关性。
-
-## 最终会生成什么
-
-每次运行通常会生成一个新的项目文件夹，例如：
-
-```text
-literature-reviews/<你的主题>/
-```
-
-里面通常包含：
-
-```text
-metadata/papers.json
-metadata/papers.csv
-metadata/journal-if-evidence.csv
-metadata-repair.md
-pdfs/
-texts/
-manual-download.md
-review-bilingual.md
-relationship-map.md
-dashboard-spec.json
-<你的-dashboard>.html
-<你的-dashboard>-data.js
-<你的-dashboard>-details.js
-```
-
-平时主要打开 `<你的-dashboard>.html`，就可以看到可视化页面。
-
-## 需要用户自己做什么
-
-你只需要负责这些事：
-
-- 提供研究方向或关键词。
-- 对非 OA 文献，自己在浏览器里合法登录学校/图书馆/出版社账号。
-- 手动完成验证码、学校认证或双重验证。
-- 如果要自动导入 Zotero，第一次配置 Zotero API key。
-- 如果要读取 Zotero，确保 Zotero 里有本地 PDF 附件。
-
-Codex 会负责：
-
-- 搜索和整理候选论文。
-- 生成下载队列。
-- 使用已经登录的浏览器会话下载可访问 PDF。
-- 校验 PDF 文件。
-- 生成 Zotero 导入记录。
-- 更新 dashboard。
-- 写双语总结、分类和关系图。
-
-## 重要提醒
-
-- 这个 skill 不能绕过付费墙，只能在你已有合法访问权限的情况下帮你自动化整理流程。
-- 不同学校的数据库权限不同，所以同一个主题在不同人电脑上能下载到的全文数量可能不同。
-- dashboard 样式和交互可以复现，但具体论文、主题分类、方法分类会随着关键词和文献库变化。
-- Zotero linked-file PDF 只在本机路径有效。如果把 dashboard 发给别人，对方可能打不开你的本地 PDF 链接。
-- AI 生成的分类和总结适合快速阅读和综述初稿，正式论文写作前建议人工复核重要文献。
-
-## 开源许可证
-
-本项目使用 MIT License。开源或二次修改时，请保留 `LICENSE` 文件和原始版权声明。
+- 不要把姓名、邮箱、学校账号、API key、Cookie、浏览器配置或本地绝对路径写入 skill、README 或公开仓库。
+- Zotero 直读模式默认只读取本机数据；不会复制或上传 PDF。
+- 下载付费文献时只使用用户已经合法登录的可见浏览器流程。
 
 ---
 
-# Zotero Literature Visualizer
+## English Description
 
-This package gives Codex a complete literature workflow: start from a research topic, discover recent high-quality papers, download or organize PDFs, add new papers to Zotero, and generate an interactive bilingual dashboard.
+`zotero-literature-visualizer` is a Codex skill for academic literature workflows. Starting from either a research topic or an existing Zotero library, it supports literature discovery, journal-quality checks, compliant full-text access workflows, Zotero organization, bilingual research summaries, and interactive literature dashboards.
 
-It includes two skills:
+The dashboard includes theme taxonomy, method hotspots, theme–method maps, a theme-coloured publication timeline, journal sources, paper cards, and local PDF launchers. Timeline nodes are grouped by publication year and colour-coded by theme. Paper cards can present curated Chinese research notes while keeping English evidence collapsed as optional reference.
 
-- `zotero-literature-visualizer`: literature search, screening, classification, bilingual synthesis, Zotero direct reading, Zotero import, and dashboard generation.
-- `sciencedirect-live-session-fetcher`: PDF downloading through a lawful live browser session after the user has signed in through their school, library, or publisher access.
+### Installation
 
-The default target is recent, quality-first literature: last 1 year, top journals, usually top 30 papers. If a field has more than 30 strongly relevant high-quality papers, you can ask Codex to include all qualified papers.
+1. Download the `.skill` or `.zip` package.
+2. Drag it into Codex, or attach it in a conversation and say:
 
-## What It Does
+   ```text
+   Install this zotero-literature-visualizer skill.
+   ```
 
-Codex can help you:
+3. Restart Codex or refresh the plugins/skills list.
+4. Start a new chat and use one of the prompts below.
 
-1. Search papers from OpenAlex, Crossref, Unpaywall, DOI and publisher pages.
-2. Select high-quality and strongly relevant papers.
-3. Verify journal Impact Factor from official journal or publisher pages when needed.
-4. Download PDFs when access is available.
-5. Add downloaded PDFs to Zotero as local linked-file attachments.
-6. Generate an interactive dashboard with themes, methods, relationship maps, journal sources, paper cards, bilingual details, DOI links, and local PDF links.
+### Workflow 1: Read an existing Zotero library
 
-## Installation
-
-The easiest way is to give Codex the GitHub or zip link and ask it to install the skill:
+Use this when Zotero already contains article records and local PDF files.
 
 ```text
-Please install this literature auto-download, Zotero import, and visualization skill:
-<paste GitHub or zip link here>
+Use the zotero-literature-visualizer skill to read all Zotero items with local PDFs,
+classify them by theme and method, and generate bilingual summaries and an interactive dashboard.
 ```
 
-Restart Codex after installation.
-
-Then ask:
+To focus on one collection:
 
 ```text
-Is this literature review and visualization skill installed correctly? Please check it for me.
+Use the zotero-literature-visualizer skill to analyze only the local-PDF items in my Zotero collection named “Collection name” and generate an interactive dashboard.
 ```
 
-## Use Case 1: Review A New Topic
+Zotero direct-import mode reads a local database snapshot without moving PDFs or modifying existing Zotero records. Only records with resolved local PDFs are included in full-text visualization; records without local PDFs are kept out of full-text analysis.
 
-Ask Codex:
+### Workflow 2: Search a new research topic
 
 ```text
-Use the zotero-literature-visualizer skill to review recent high-quality top-journal papers on "...", default top 30, and generate a bilingual summary and visualization dashboard.
+Use the zotero-literature-visualizer skill to review recent high-quality literature on
+“keyword ***”.
+Provide the screening logic, journal-quality checks, bilingual research notes, and a dashboard.
 ```
 
-Replace `...` with your topic or keywords.
-
-If you do not want a 30-paper cap, say:
+You can add constraints such as year range, target count, geographic scope, keywords, or methods:
 
 ```text
-If there are more than 30 strongly relevant high-quality papers, include all qualified papers.
+Last 5 years; no paper limit; focus on keyword ***, research context ***, and research method ***.
 ```
 
-## Use Case 2: Download Non-OA Full Texts
+The workflow prioritizes relevance, research quality, and journal evidence. Open-access status is not used as a ranking criterion.
 
-Codex will not bypass paywalls or ask for your password. For non-OA papers, you need to sign in yourself.
+### Workflow 3: Obtain full-text PDFs
 
-What you do:
-
-1. Let Codex prepare the download queue.
-2. Sign in through your school, library, or publisher account in the browser.
-3. Complete any CAPTCHA, SSO, or two-factor verification yourself.
-4. Open one representative article and click the visible `View PDF` or `Download PDF` button once if required.
-5. Tell Codex you are ready.
-
-Example:
+Codex does not bypass paywalls or request credentials. For subscription content, sign in yourself through your publisher, library, or institutional access page, then say:
 
 ```text
-I have signed in through my school account. Please continue downloading these papers. Open the article page first, then use the visible PDF button.
+I have completed an authorized browser login. Continue downloading the full texts for these papers.
 ```
 
-## Use Case 3: Add Downloaded PDFs To Zotero And Dashboard
+The workflow starts from a visible publisher article page and uses the page’s visible `View PDF`, `Open PDF`, or `Download PDF` control. Users complete CAPTCHAs, two-factor verification, and download confirmations themselves.
 
-After PDFs are downloaded, ask:
+### Workflow 4: Add papers and PDFs to Zotero
 
 ```text
-Add the newly downloaded PDFs to Zotero, create a collection using today's date, and update the dashboard.
+Add the downloaded papers to my Zotero collection named “Collection name” and attach each local PDF to its matching article record.
 ```
 
-By default, the skill uses Zotero `linked_file` attachments:
+When Zotero Web API writing is needed, create a personal-library API key yourself and grant only the required library/write permissions. Never place an API key in a README, public repository, or public chat.
 
-- PDFs remain on your local computer.
-- Zotero records point to the local PDF files.
-- PDF files are not uploaded to Zotero cloud storage.
-- Zotero cloud storage quota is not used.
-
-For automatic Zotero import, set up a Zotero API key once:
-
-1. Log in to Zotero.
-2. Create an API key.
-3. Enable personal library access and write access.
-4. Group permissions are not needed unless you want group-library import.
-5. Keep the key local. Do not upload it to GitHub or paste it publicly.
-
-The Zotero API key is free. Zotero cloud storage is only relevant if you choose to upload PDF files. This skill defaults to local linked files.
-
-## Use Case 4: Read An Existing Zotero Library
-
-If your Zotero library already contains PDFs, ask:
+### Workflow 5: Generate or refine a dashboard
 
 ```text
-Use zotero-literature-visualizer Zotero mode to read all Zotero items with local PDFs, classify and summarize them, and generate a bilingual visualization dashboard.
+Create a dashboard for this library with theme taxonomy, method distribution,
+a publication timeline, a theme–method map, journal sources, and local PDF links.
 ```
 
-Zotero mode:
-
-- Finds the local Zotero database automatically.
-- Reads Zotero in read-only mode.
-- Includes only entries with local PDF files.
-- Skips entries without PDFs.
-- Uses the full PDF-backed library by default, with no fixed 30 or 100 paper limit.
-- Switches to a large-library dashboard when there are more than 100 papers.
-
-## Outputs
-
-Each run creates a folder like:
+For deeper literature notes, ask:
 
 ```text
-literature-reviews/<your-topic>/
+Read the local PDFs and add paper-specific Chinese notes for research topic, method,
+data or case, findings, limitations, and implications.
 ```
 
-Typical outputs include:
+### Typical outputs
 
-```text
-metadata/papers.json
-metadata/papers.csv
-metadata/journal-if-evidence.csv
-metadata-repair.md
-pdfs/
-texts/
-manual-download.md
-review-bilingual.md
-relationship-map.md
-dashboard-spec.json
-<your-dashboard>.html
-<your-dashboard>-data.js
-<your-dashboard>-details.js
-```
+A run folder commonly contains:
 
-Open the generated dashboard HTML file to view the interactive report.
+- `metadata/papers.json`: normalized paper metadata;
+- `texts/`: extracted text from local PDFs;
+- `review-bilingual.md`: bilingual review;
+- `relationship-map.md`: theme and method relationships;
+- `dashboard-spec.json`: editable taxonomy and paper-card semantics;
+- `literature-dashboard.html`: an offline interactive dashboard.
 
-## What The User Must Do
+### Privacy and data boundaries
 
-The user provides:
-
-- Research topic or keywords.
-- Lawful browser login for non-OA papers.
-- Manual CAPTCHA, SSO, or two-factor verification when needed.
-- Zotero API key once, if automatic Zotero import is desired.
-- Existing local PDFs in Zotero, if using Zotero direct mode.
-
-Codex handles:
-
-- Search and candidate collection.
-- Download queue generation.
-- PDF downloading through the authorized browser session.
-- PDF validation.
-- Zotero item and linked-file attachment creation.
-- Dashboard generation.
-- Bilingual classification, summaries, and relationship maps.
-
-## Notes
-
-- This skill does not bypass paywalls. It only works with access the user already has.
-- Full-text availability depends on each user's institution or publisher access.
-- The dashboard layout is reproducible, but paper lists and classifications depend on the topic and library.
-- Zotero linked-file PDF paths work on the local machine. Other people may not be able to open your local PDF links.
-- AI-generated classifications and summaries are best treated as review aids and first drafts. Important papers should be manually checked before formal academic writing.
-
-## License
-
-This project is released under the MIT License. Keep the `LICENSE` file and copyright notice when reusing or modifying it.
+- Do not put names, email addresses, institutional accounts, API keys, cookies, browser profiles, or absolute local paths in the skill, README, or a public repository.
+- Zotero direct-import mode reads local data by default and does not copy or upload PDFs.
+- For paywalled content, use only an authorized, visible browser workflow after the user has completed login.
