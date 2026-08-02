@@ -5,6 +5,8 @@
 `zotero-literature-visualizer` 是面向 Codex 的学术文献工作流 skill。它可从研究主题或已有 Zotero 文献库出发，完成文献检索、期刊质量核查、合规的全文获取流程、Zotero 条目整理、中英文研究摘要，以及交互式文献 dashboard 的生成。
 
 Dashboard 会包含主题分类、方法热点、主题—方法关系图、发表时间线、期刊来源、文章卡片与本地 PDF 打开入口。时间线按年份排列，以主题颜色区分文献；文章卡片可显示中文研究摘要，并将英文证据折叠为可选参考。
+<img width="1302" height="751" alt="Screenshot 2026-08-02 121211" src="https://github.com/user-attachments/assets/827da0cd-4922-40e1-98ad-9cc9116c38ca" />
+
 
 ### 安装
 
