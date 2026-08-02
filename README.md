@@ -1,4 +1,4 @@
-# Codex-Zotero 文献可视化 Skill
+# Codex-Zotero 文献整理和可视化 Skill
 
 ## 中文说明
 
