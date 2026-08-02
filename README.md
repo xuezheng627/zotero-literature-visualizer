@@ -6,6 +6,8 @@
 
 Dashboard 会包含主题分类、方法热点、主题—方法关系图、发表时间线、期刊来源、文章卡片与本地 PDF 打开入口。时间线按年份排列，以主题颜色区分文献；文章卡片可显示中文研究摘要，并将英文证据折叠为可选参考。
 <img width="1302" height="751" alt="Screenshot 2026-08-02 121211" src="https://github.com/user-attachments/assets/827da0cd-4922-40e1-98ad-9cc9116c38ca" />
+<img width="1243" height="751" alt="Screenshot 2026-08-02 121236" src="https://github.com/user-attachments/assets/96a27132-5cf9-4b7d-b53c-6a667e0547a1" />
+
 
 
 ### 安装
